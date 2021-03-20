@@ -128,7 +128,7 @@ class Ball(
     }
 
     private fun getNewRandomVelocity(halfMaxAngle: Float, baseSpeed: Float): Pair<Float, Float> {
-        val angle = random.nextFloat() * halfMaxAngle
+        val angle = toRadians(random.nextFloat() * halfMaxAngle)
         val xSpeed = abs(cos(angle) * baseSpeed)
         val ySpeed = abs(sin(angle) * baseSpeed)
         return xSpeed to ySpeed
