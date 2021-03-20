@@ -63,7 +63,7 @@ class Ball(
 
     fun checkCollision(tag: String, other: Rectangle) {
         if (sprite.boundingRectangle.overlaps(other)) {
-            when(tag) {
+            when (tag) {
                 LEFT_PADDLE -> handleCollisionWithPaddle(false, other)
                 RIGHT_PADDLE -> handleCollisionWithPaddle(true, other)
                 TOP_BARRIER -> revertYSpeed()
