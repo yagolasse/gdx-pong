@@ -10,12 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction
 import com.badlogic.gdx.utils.Disposable
+import com.example.pong.SCREEN_HEIGHT
 
 class Paddle(
     private val initialX: Float,
     private val initialY: Float,
     private val texture: Texture,
     private val inputKeySet: Pair<Int, Int>,
+    private val screenPadding: Float = 8f,
     private val movementAmount: Float = 10f
 ) : Actor(), Disposable, InputProcessor {
 
@@ -40,9 +42,9 @@ class Paddle(
 
     override fun keyDown(keycode: Int): Boolean {
         val (upKey, downKey) = inputKeySet
-        when (keycode) {
-            upKey -> moveUp()
-            downKey -> moveDown()
+        when {
+            keycode == upKey && y <= SCREEN_HEIGHT - height - screenPadding -> moveUp()
+            keycode == downKey && y >= 0f + screenPadding -> moveDown()
             else -> return false
         }
         return false
@@ -61,7 +63,14 @@ class Paddle(
     }
 
     override fun positionChanged() {
-        super.positionChanged()
+        val heightWithOffset = SCREEN_HEIGHT - sprite.height - screenPadding
+        if(y > heightWithOffset) {
+            stopMoving()
+            y = heightWithOffset
+        } else if(y < 0f + screenPadding) {
+            stopMoving()
+            y = 0f + screenPadding
+        }
         sprite.setPosition(x, y)
     }
 
