@@ -4,15 +4,17 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
+import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction
 import com.badlogic.gdx.utils.Disposable
-import com.example.pong.util.*
+import com.badlogic.gdx.utils.Pool
+import com.example.pong.pool.RepeatActionPool
+import com.example.pong.util.createPool
+import com.example.pong.util.getNewRandomVelocity
+import com.example.pong.util.middleYPoint
 import java.util.*
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.sin
 
 private const val ZERO = 0f
 
@@ -23,62 +25,45 @@ class Ball(
     private val maxSpeed: Float = 5f,
     private val initialSpeed: Float = 3f,
     private val initialMaxHalfAngle: Float = 30f,
-    private val paddleCollisionMaxHalfAngle: Float = 65f
+    private val paddleHitDeflectionAngle: Float = 65f
 ) : Actor(), Disposable {
 
-    private val sprite = Sprite(texture)
     private val random = Random()
-
-    private var moveAction: Action? = null
+    private val sprite = Sprite(texture)
+    private val moveAction = MoveByAction()
+    private val repeatAction = RepeatAction().apply {
+        action = moveAction
+        count = RepeatAction.FOREVER
+    }
 
     private var xSpeed = 0f
     private var ySpeed = 0f
 
     init {
         resetPosition()
-        startMoving()
+        restartMoving()
+        addAction(repeatAction)
     }
 
-    fun startMoving() {
-        val isGoingDown = random.nextBoolean()
-        val isGoingLeft = random.nextBoolean()
+    fun handleCollisionWithLeftPaddle(paddlesRectangle: Rectangle) {
+        handleCollisionWithPaddle(false, paddlesRectangle)
+    }
 
-        getNewRandomVelocity(initialMaxHalfAngle, initialSpeed).also {
-            xSpeed = it.first
-            ySpeed = it.second
-        }
+    fun handleCollisionWithRightPaddle(paddlesRectangle: Rectangle) {
+        handleCollisionWithPaddle(true, paddlesRectangle)
+    }
 
-        if (isGoingLeft) {
-            xSpeed = -xSpeed
-        }
-        if (isGoingDown) {
-            ySpeed = -ySpeed
-        }
-
-        removeAction(moveAction)
-        moveAction = Actions.forever(Actions.moveBy(xSpeed, ySpeed)).also {
-            addAction(it)
+    fun handleCollisionWithVerticalBarriers(barrierRectangle: Rectangle) {
+        if (sprite.boundingRectangle.overlaps(barrierRectangle)) {
+            revertYSpeed()
+            handleSpeedChange()
         }
     }
 
-    fun checkCollision(tag: String, other: Rectangle) {
-        if (sprite.boundingRectangle.overlaps(other)) {
-            when (tag) {
-                LEFT_PADDLE -> handleCollisionWithPaddle(false, other)
-                RIGHT_PADDLE -> handleCollisionWithPaddle(true, other)
-                TOP_BARRIER -> revertYSpeed()
-                BOTTOM_BARRIER -> revertYSpeed()
-                LEFT_BARRIER, RIGHT_BARRIER -> {
-                    resetPosition()
-                    startMoving()
-                }
-                else -> return
-            }
-
-            removeAction(moveAction)
-            moveAction = Actions.forever(Actions.moveBy(xSpeed, ySpeed)).also {
-                addAction(it)
-            }
+    fun handleCollisionWithHorizontalBarriers(barrierRectangle: Rectangle) {
+        if (sprite.boundingRectangle.overlaps(barrierRectangle)) {
+            resetPosition()
+            restartMoving()
         }
     }
 
@@ -93,6 +78,14 @@ class Ball(
 
     override fun dispose() {
         texture.dispose()
+    }
+
+    private fun restartMoving() {
+        random.getNewRandomVelocity(initialSpeed, initialMaxHalfAngle).also { (newXSpeed, newYSpeed) ->
+            xSpeed = newXSpeed
+            ySpeed = newYSpeed
+        }
+        handleSpeedChange()
     }
 
     private fun resetPosition() {
@@ -112,25 +105,25 @@ class Ball(
         ySpeed = -ySpeed
     }
 
-    private fun handleCollisionWithPaddle(isRight: Boolean, paddleRectangle: Rectangle) {
-        getNewRandomVelocity(paddleCollisionMaxHalfAngle, maxSpeed).also {
-            xSpeed = it.first
-            ySpeed = it.second
-        }
-
-        if (isRight) {
-            xSpeed = -xSpeed
-        }
-
-        if (paddleRectangle.middleYPoint > sprite.boundingRectangle.middleYPoint) {
-            ySpeed = -ySpeed
-        }
+    private fun handleSpeedChange() {
+        moveAction.setAmount(xSpeed, ySpeed)
     }
 
-    private fun getNewRandomVelocity(halfMaxAngle: Float, baseSpeed: Float): Pair<Float, Float> {
-        val angle = toRadians(random.nextFloat() * halfMaxAngle)
-        val xSpeed = abs(cos(angle) * baseSpeed)
-        val ySpeed = abs(sin(angle) * baseSpeed)
-        return xSpeed to ySpeed
+    private fun handleCollisionWithPaddle(shouldGoLeft: Boolean, paddlesRectangle: Rectangle) {
+        if (sprite.boundingRectangle.overlaps(paddlesRectangle)) {
+            val shouldGoDown =
+                paddlesRectangle.middleYPoint > sprite.boundingRectangle.middleYPoint
+            random.getNewRandomVelocity(
+                maxSpeed,
+                paddleHitDeflectionAngle,
+                shouldGoLeft,
+                shouldGoDown
+            ).also { (newXSpeed, newYSpeed) ->
+                xSpeed = newXSpeed
+                ySpeed = newYSpeed
+            }
+        }
+        handleSpeedChange()
     }
+
 }

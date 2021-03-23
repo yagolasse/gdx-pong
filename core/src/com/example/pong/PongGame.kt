@@ -26,10 +26,10 @@ class PongGame : ApplicationAdapter() {
     private lateinit var stage: Stage
     private lateinit var leftPaddle: Paddle
     private lateinit var rightPaddle: Paddle
-    private lateinit var topBarrier: TaggedRectangle
-    private lateinit var leftBarrier: TaggedRectangle
-    private lateinit var bottomBarrier: TaggedRectangle
-    private lateinit var rightBarrier: TaggedRectangle
+    private lateinit var topBarrier: Rectangle
+    private lateinit var leftBarrier: Rectangle
+    private lateinit var bottomBarrier: Rectangle
+    private lateinit var rightBarrier: Rectangle
 
     override fun create() {
         initializePaddles()
@@ -46,12 +46,12 @@ class PongGame : ApplicationAdapter() {
         stage.draw()
 
         with(ball) {
-            checkCollision(rightPaddle.tag, rightPaddle.boundingRectangle)
-            checkCollision(leftPaddle.tag, leftPaddle.boundingRectangle)
-            checkCollision(topBarrier.tag, topBarrier.rectangle)
-            checkCollision(leftBarrier.tag, leftBarrier.rectangle)
-            checkCollision(bottomBarrier.tag, bottomBarrier.rectangle)
-            checkCollision(rightBarrier.tag, rightBarrier.rectangle)
+            handleCollisionWithLeftPaddle(leftPaddle.boundingRectangle)
+            handleCollisionWithRightPaddle(rightPaddle.boundingRectangle)
+            handleCollisionWithVerticalBarriers(topBarrier)
+            handleCollisionWithVerticalBarriers(bottomBarrier)
+            handleCollisionWithHorizontalBarriers(leftBarrier)
+            handleCollisionWithHorizontalBarriers(rightBarrier)
         }
     }
 
@@ -72,7 +72,6 @@ class PongGame : ApplicationAdapter() {
         val paddleY = SCREEN_HEIGHT * 0.5f
 
         leftPaddle = Paddle(
-            LEFT_PADDLE,
             leftPaddleX,
             paddleY,
             Texture(paddleResPath),
@@ -80,7 +79,6 @@ class PongGame : ApplicationAdapter() {
         )
 
         rightPaddle = Paddle(
-            RIGHT_PADDLE,
             rightPaddleX,
             paddleY,
             Texture(paddleResPath),
@@ -109,14 +107,9 @@ class PongGame : ApplicationAdapter() {
         val right = SCREEN_WIDTH * 0.95f
         val barrierThickness = 1f
 
-        val topRectangle = Rectangle(left, SCREEN_HEIGHT.toFloat(), verticalBarriersWidth, barrierThickness)
-        val leftRectangle = Rectangle(left, 0f, barrierThickness, SCREEN_HEIGHT.toFloat())
-        val bottomRectangle = Rectangle(left, 0f, verticalBarriersWidth, barrierThickness)
-        val rightRectangle = Rectangle(right, 0f, barrierThickness, SCREEN_HEIGHT.toFloat())
-
-        topBarrier = TaggedRectangle(TOP_BARRIER, topRectangle)
-        leftBarrier = TaggedRectangle(LEFT_BARRIER, leftRectangle)
-        bottomBarrier = TaggedRectangle(BOTTOM_BARRIER, bottomRectangle)
-        rightBarrier = TaggedRectangle(RIGHT_BARRIER, rightRectangle)
+        topBarrier = Rectangle(left, SCREEN_HEIGHT.toFloat(), verticalBarriersWidth, barrierThickness)
+        leftBarrier = Rectangle(left, 0f, barrierThickness, SCREEN_HEIGHT.toFloat())
+        bottomBarrier = Rectangle(left, 0f, verticalBarriersWidth, barrierThickness)
+        rightBarrier = Rectangle(right, 0f, barrierThickness, SCREEN_HEIGHT.toFloat())
     }
 }

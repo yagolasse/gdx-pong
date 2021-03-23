@@ -5,15 +5,13 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.scenes.scene2d.Action
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
+import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction
 import com.badlogic.gdx.utils.Disposable
 
-private const val ZERO = 0f
-
 class Paddle(
-    val tag: String,
     private val initialX: Float,
     private val initialY: Float,
     private val texture: Texture,
@@ -23,7 +21,11 @@ class Paddle(
 
     private val sprite = Sprite(texture)
 
-    private var moveAction: Action? = null
+    private val moveAction = MoveByAction()
+    private val repeatAction = RepeatAction().apply {
+        action = moveAction
+        count = RepeatAction.FOREVER
+    }
 
     val boundingRectangle: Rectangle
         get() = sprite.boundingRectangle
@@ -68,33 +70,34 @@ class Paddle(
     }
 
     private fun moveUp() {
-        moveInTheYAxis(movementAmount)
+        moveAction.amountY = movementAmount
+        checkMoveAction()
     }
 
     private fun moveDown() {
-        moveInTheYAxis(-movementAmount)
+        moveAction.amountY = -movementAmount
+        checkMoveAction()
     }
 
-    private fun moveInTheYAxis(yAmount: Float) {
-        removeAction(moveAction)
-        moveAction = Actions.forever(Actions.moveBy(ZERO, yAmount))
-        addAction(moveAction)
+    private fun checkMoveAction() {
+        if(!actions.contains(repeatAction)) {
+            addAction(repeatAction)
+        }
     }
 
     private fun stopMoving() {
-        removeAction(moveAction)
-        moveAction = null
+        removeAction(repeatAction)
     }
 
     override fun keyTyped(character: Char) = false
 
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
-
     override fun mouseMoved(screenX: Int, screenY: Int) = false
 
     override fun scrolled(amountX: Float, amountY: Float) = false
+
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
+
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 }
