@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction
 import com.badlogic.gdx.utils.Disposable
@@ -93,7 +92,7 @@ class Paddle(
     }
 
     private fun checkMoveAction() {
-        if(!actions.contains(repeatAction)) {
+        if (!actions.contains(repeatAction)) {
             addAction(repeatAction)
         }
     }
@@ -103,14 +102,9 @@ class Paddle(
     }
 
     override fun keyTyped(character: Char) = false
-
     override fun mouseMoved(screenX: Int, screenY: Int) = false
-
     override fun scrolled(amountX: Float, amountY: Float) = false
-
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
-
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 }

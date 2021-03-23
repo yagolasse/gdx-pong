@@ -11,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.example.pong.model.Ball
 import com.example.pong.model.Paddle
-import com.example.pong.model.TaggedRectangle
-import com.example.pong.util.*
 
 val SCREEN_WIDTH = Gdx.graphics.width
 val SCREEN_HEIGHT = Gdx.graphics.height
