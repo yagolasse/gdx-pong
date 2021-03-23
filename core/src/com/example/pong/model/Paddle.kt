@@ -1,6 +1,5 @@
 package com.example.pong.model
 
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -15,10 +14,9 @@ class Paddle(
     private val initialX: Float,
     private val initialY: Float,
     private val texture: Texture,
-    private val inputKeySet: Pair<Int, Int>,
     private val screenPadding: Float = 8f,
     private val movementAmount: Float = 10f
-) : Actor(), Disposable, InputProcessor {
+) : Actor(), Disposable {
 
     private val sprite = Sprite(texture)
     private val moveAction = MoveByAction()
@@ -41,22 +39,22 @@ class Paddle(
         }
     }
 
-    override fun keyDown(keycode: Int): Boolean {
-        val (upKey, downKey) = inputKeySet
-        when {
-            keycode == upKey && y <= topOffset -> moveUp()
-            keycode == downKey && y >= screenPadding -> moveDown()
-            else -> return false
+    fun moveUp() {
+        if (y <= topOffset) {
+            moveAction.amountY = movementAmount
+            checkMoveAction()
         }
-        return false
     }
 
-    override fun keyUp(keycode: Int): Boolean {
-        val (upKey, downKey) = inputKeySet
-        if (keycode == upKey || keycode == downKey) {
-            stopMoving()
+    fun moveDown() {
+        if (y >= screenPadding) {
+            moveAction.amountY = -movementAmount
+            checkMoveAction()
         }
-        return false
+    }
+
+    fun stopMoving() {
+        removeAction(repeatAction)
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
@@ -64,6 +62,15 @@ class Paddle(
     }
 
     override fun positionChanged() {
+        checkShouldStop()
+        sprite.setPosition(x, y)
+    }
+
+    override fun dispose() {
+        texture.dispose()
+    }
+
+    private fun checkShouldStop() {
         when {
             y > topOffset -> {
                 stopMoving()
@@ -74,21 +81,6 @@ class Paddle(
                 y = screenPadding
             }
         }
-        sprite.setPosition(x, y)
-    }
-
-    override fun dispose() {
-        texture.dispose()
-    }
-
-    private fun moveUp() {
-        moveAction.amountY = movementAmount
-        checkMoveAction()
-    }
-
-    private fun moveDown() {
-        moveAction.amountY = -movementAmount
-        checkMoveAction()
     }
 
     private fun checkMoveAction() {
@@ -97,14 +89,4 @@ class Paddle(
         }
     }
 
-    private fun stopMoving() {
-        removeAction(repeatAction)
-    }
-
-    override fun keyTyped(character: Char) = false
-    override fun mouseMoved(screenX: Int, screenY: Int) = false
-    override fun scrolled(amountX: Float, amountY: Float) = false
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
 }

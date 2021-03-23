@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import com.example.pong.input.PaddleLocalInputProcessor
 import com.example.pong.model.Ball
 import com.example.pong.model.Paddle
 
@@ -29,13 +30,20 @@ class PongGame : ApplicationAdapter() {
     private lateinit var bottomBarrier: Rectangle
     private lateinit var rightBarrier: Rectangle
 
+    private lateinit var leftPaddleInputProcessor: PaddleLocalInputProcessor
+    private lateinit var rightPaddleInputProcessor: PaddleLocalInputProcessor
+
     override fun create() {
         initializePaddles()
+        initializeInput()
         initializeBall()
         initializeStage()
         initializeBarriers()
 
-        Gdx.input.inputProcessor = InputMultiplexer(leftPaddle, rightPaddle)
+        Gdx.input.inputProcessor = InputMultiplexer(
+            leftPaddleInputProcessor,
+            rightPaddleInputProcessor
+        )
     }
 
     override fun render() {
@@ -72,15 +80,22 @@ class PongGame : ApplicationAdapter() {
         leftPaddle = Paddle(
             leftPaddleX,
             paddleY,
-            Texture(paddleResPath),
-            Pair(Input.Keys.W, Input.Keys.S)
+            Texture(paddleResPath)
         )
 
         rightPaddle = Paddle(
             rightPaddleX,
             paddleY,
-            Texture(paddleResPath),
-            Pair(Input.Keys.UP, Input.Keys.DOWN)
+            Texture(paddleResPath)
+        )
+    }
+
+    private fun initializeInput() {
+        leftPaddleInputProcessor = PaddleLocalInputProcessor(
+            Input.Keys.W, Input.Keys.S, leftPaddle
+        )
+        rightPaddleInputProcessor = PaddleLocalInputProcessor(
+            Input.Keys.UP, Input.Keys.DOWN, rightPaddle
         )
     }
 
