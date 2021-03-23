@@ -5,18 +5,12 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction
 import com.badlogic.gdx.utils.Disposable
-import com.badlogic.gdx.utils.Pool
-import com.example.pong.pool.RepeatActionPool
-import com.example.pong.util.createPool
 import com.example.pong.util.getNewRandomVelocity
 import com.example.pong.util.middleYPoint
 import java.util.*
-
-private const val ZERO = 0f
 
 class Ball(
     private val initialX: Float,
