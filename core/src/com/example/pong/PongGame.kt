@@ -14,8 +14,8 @@ import com.example.pong.model.Paddle
 import com.example.pong.model.TaggedRectangle
 import com.example.pong.util.*
 
-private val SCREEN_WIDTH = Gdx.graphics.width
-private val SCREEN_HEIGHT = Gdx.graphics.height
+val SCREEN_WIDTH = Gdx.graphics.width
+val SCREEN_HEIGHT = Gdx.graphics.height
 
 class PongGame : ApplicationAdapter() {
 
