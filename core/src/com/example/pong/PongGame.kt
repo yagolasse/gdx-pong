@@ -46,12 +46,12 @@ class PongGame : ApplicationAdapter() {
         stage.draw()
 
         with(ball) {
-            checkCollision(rightPaddle.tag, rightPaddle.boundingRectangle)
-            checkCollision(leftPaddle.tag, leftPaddle.boundingRectangle)
-            checkCollision(topBarrier.tag, topBarrier.rectangle)
-            checkCollision(leftBarrier.tag, leftBarrier.rectangle)
-            checkCollision(bottomBarrier.tag, bottomBarrier.rectangle)
-            checkCollision(rightBarrier.tag, rightBarrier.rectangle)
+            handleCollisionWithLeftPaddle(leftPaddle.boundingRectangle)
+            handleCollisionWithRightPaddle(rightPaddle.boundingRectangle)
+            handleCollisionWithVerticalBarriers(topBarrier.rectangle)
+            handleCollisionWithVerticalBarriers(bottomBarrier.rectangle)
+            handleCollisionWithHorizontalBarriers(leftBarrier.rectangle)
+            handleCollisionWithHorizontalBarriers(rightBarrier.rectangle)
         }
     }
 
