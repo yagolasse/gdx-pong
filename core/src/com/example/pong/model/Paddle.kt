@@ -22,12 +22,14 @@ class Paddle(
 ) : Actor(), Disposable, InputProcessor {
 
     private val sprite = Sprite(texture)
-
     private val moveAction = MoveByAction()
+
     private val repeatAction = RepeatAction().apply {
         action = moveAction
         count = RepeatAction.FOREVER
     }
+
+    private val topOffset = SCREEN_HEIGHT - sprite.height - screenPadding
 
     val boundingRectangle: Rectangle
         get() = sprite.boundingRectangle
@@ -43,8 +45,8 @@ class Paddle(
     override fun keyDown(keycode: Int): Boolean {
         val (upKey, downKey) = inputKeySet
         when {
-            keycode == upKey && y <= SCREEN_HEIGHT - height - screenPadding -> moveUp()
-            keycode == downKey && y >= 0f + screenPadding -> moveDown()
+            keycode == upKey && y <= topOffset -> moveUp()
+            keycode == downKey && y >= screenPadding -> moveDown()
             else -> return false
         }
         return false
@@ -63,13 +65,15 @@ class Paddle(
     }
 
     override fun positionChanged() {
-        val heightWithOffset = SCREEN_HEIGHT - sprite.height - screenPadding
-        if(y > heightWithOffset) {
-            stopMoving()
-            y = heightWithOffset
-        } else if(y < 0f + screenPadding) {
-            stopMoving()
-            y = 0f + screenPadding
+        when {
+            y > topOffset -> {
+                stopMoving()
+                y = topOffset
+            }
+            y < screenPadding -> {
+                stopMoving()
+                y = screenPadding
+            }
         }
         sprite.setPosition(x, y)
     }
